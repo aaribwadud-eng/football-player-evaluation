@@ -77,44 +77,40 @@ if selected_player:
   st.bar_chart(data=bar_data, x="Valuation Type", y="Value (£M)")
 
   # --- 5-YEAR FUTURE VALUE LINE GRAPH ---
-  st.write("### 📉 5-Year Projected Market Value Curve")
+st.write("### 📉 5-Year Projected Market Value Curve")
 
-  future_years = ["Current (2026)", "2027", "2028", "2029", "2030"]
-  projected_values = []
+future_years = [2026, 2027, 2028, 2029, 2030]
+projected_values = []
 
-  # Copy original player features for aging projection
-  curr_age = player_row["Age"]
-  curr_contract = player_row["Contract_Years"]
+curr_age = player_row["Age"]
+curr_contract = player_row["Contract_Years"]
 
-  for year_offset in range(5):
-    # Model age aging +1 each year
-    projected_age = curr_age + year_offset
-    # Contract decreases by 1 each year (minimum 0)
-    projected_contract = max(0, curr_contract - year_offset)
+for year_offset in range(5):
+  projected_age = curr_age + year_offset
+  projected_contract = max(0, curr_contract - year_offset)
 
-    # Build feature row with updated Age and Contract_Years
-    temp_stats = [
-        projected_age,
-        player_row["Goals"],
-        player_row["Assists"],
-        player_row["Minutes"],
-        projected_contract,
-        player_row["Clean_Sheets"],
-        player_row["Tackles_Int"],
-        player_row["Pos_GK"],
-        player_row["Pos_DEF"],
-        player_row["Pos_MID"],
-        player_row["Pos_FW"],
-    ]
+  temp_stats = [
+      projected_age,
+      player_row["Goals"],
+      player_row["Assists"],
+      player_row["Minutes"],
+      projected_contract,
+      player_row["Clean_Sheets"],
+      player_row["Tackles_Int"],
+      player_row["Pos_GK"],
+      player_row["Pos_DEF"],
+      player_row["Pos_MID"],
+      player_row["Pos_FW"],
+  ]
 
-    # Predict future value (floor at 0.0M)
-    val = max(0.0, model.predict([temp_stats])[0])
-    projected_values.append(round(val, 1))
+  # Calculate valuation and prevent negative values
+  val = max(0.0, model.predict([temp_stats])[0])
+  projected_values.append(round(val, 1))
 
-  # Build DataFrame for line chart
-  line_data = pd.DataFrame(
-      {"Year": future_years, "Projected Value (£M)": projected_values}
-  )
+# Create clean DataFrame for line chart
+line_df = pd.DataFrame(
+    {"Year": future_years, "Projected Value (£M)": projected_values}
+)
 
-  # Display Line Chart
-  st.line_chart(data=line_data, x="Year", y="Projected Value (£M)")
+# Render line chart explicitly defining X and Y axes
+st.line_chart(line_df, x="Year", y="Projected Value (£M)")
